@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupos de Predicación - Congregación Cordialidad</title>
+    <style>
+        @page {
+            size: letter landscape;
+            margin: 0.3cm;
+        }
+        
+        body {
+            font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+            font-size: 9.5pt;
+            margin: 0 auto;
+            padding: 6px;
+            background: #f8f9fa;
+            max-width: 26cm;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            width: 100%;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 20pt;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+            margin-bottom: 6px;
+            width: 100%;
+        }
+        
+        .group {
+            border: none;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            page-break-inside: avoid;
+        }
+        
+        .group-header {
+            background: linear-gradient(180deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 14pt;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .group-content {
+            padding: 8px 10px;
+        }
+        
+        .section {
+            break-inside: avoid;
+            margin-bottom: 8px;
+        }
+        
+        .section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0 20%, #e0e0e0 80%, transparent);
+            margin: 8px 0;
+        }
+        
+        .member {
+            padding: 2.5px 0;
+            font-size: 9pt;
+            line-height: 1.5;
+        }
+        
+        .anciano {
+            font-weight: 700;
+            color: #7c2d12;
+            font-size: 9.5pt;
+        }
+        
+        .siervo {
+            color: #3f4f21;
+            font-weight: 600;
+            font-size: 9.2pt;
+        }
+        
+        .precursor {
+            color: #713f12;
+            font-weight: 500;
+            font-size: 9pt;
+        }
+        
+        .publicador {
+            color: #333;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 7pt;
+            font-weight: 700;
+            margin-right: 4px;
+            vertical-align: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .badge-a {
+            background: linear-gradient(135deg, #991b1b, #b91c1c);
+            color: white;
+            box-shadow: 0 1px 2px rgba(153, 27, 27, 0.3);
+        }
+        
+        .badge-ap {
+            background: linear-gradient(135deg, #7f1d1d, #991b1b);
+            color: white;
+            box-shadow: 0 1px 2px rgba(127, 29, 29, 0.3);
+        }
+        
+        .badge-s {
+            background: linear-gradient(135deg, #4d5e23, #65762d);
+            color: white;
+            box-shadow: 0 1px 2px rgba(77, 94, 35, 0.3);
+        }
+        
+        .badge-sp {
+            background: linear-gradient(135deg, #3d4a1c, #4d5e23);
+            color: white;
+            box-shadow: 0 1px 2px rgba(61, 74, 28, 0.3);
+        }
+        
+        .badge-p {
+            background: linear-gradient(135deg, #a16207, #ca8a04);
+            color: white;
+            box-shadow: 0 1px 2px rgba(161, 98, 7, 0.3);
+        }
+        
+        .summary {
+            margin-top: 6px;
+            padding: 8px 10px;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 8.5pt;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            page-break-inside: avoid;
+            width: 100%;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 3px 6px;
+        }
+        
+        .summary-number {
+            font-size: 15pt;
+            font-weight: 700;
+            color: #1e40af;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .summary-label {
+            font-size: 7.5pt;
+            color: #4b5563;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        
+        .legend {
+            margin-top: 5px;
+            padding: 6px;
+            background: white;
+            border-radius: 6px;
+            font-size: 7.5pt;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            page-break-inside: avoid;
+            width: 100%;
+        }
+        
+        .legend-item {
+            display: inline-block;
+            margin: 0 8px 2px 8px;
+            font-weight: 500;
+        }
+        
+        @media print {
+            body {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+                background: white;
+                padding: 0;
+            }
+            
+            .group {
+                box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            }
+            
+            .header {
+                box-shadow: none;
+            }
+        }
+        
+        /* Media queries para dispositivos móviles */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+                max-width: 100%;
+            }
+            
+            .header {
+                padding: 15px 10px;
+                margin-bottom: 15px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .group-header {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .group-content {
+                padding: 12px;
+            }
+            
+            .member {
+                padding: 4px 0;
+                font-size: 14px;
+            }
+            
+            .anciano {
+                font-size: 15px;
+            }
+            
+            .siervo {
+                font-size: 14.5px;
+            }
+            
+            .precursor {
+                font-size: 14px;
+            }
+            
+            .role-badge {
+                padding: 3px 6px;
+                font-size: 9px;
+                margin-right: 6px;
+            }
+            
+            .summary {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .summary-item {
+                padding: 8px;
+                width: 100%;
+                border-bottom: 1px solid #d1d5db;
+            }
+            
+            .summary-item:last-child {
+                border-bottom: none;
+            }
+            
+            .summary-number {
+                font-size: 24px;
+            }
+            
+            .summary-label {
+                font-size: 12px;
+            }
+            
+            .legend {
+                padding: 12px;
+                font-size: 11px;
+            }
+            
+            .legend-item {
+                display: block;
+                margin: 6px 0;
+                text-align: left;
+            }
+        }
+        
+        /* Media queries para tablets */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            body {
+                padding: 10px;
+                max-width: 100%;
+            }
+            
+            .container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .summary {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .summary-item {
+                flex: 1 1 calc(25% - 10px);
+                min-width: 120px;
+            }
+        }
+        
+        /* Media queries para pantallas grandes */
+        @media screen and (min-width: 1025px) {
+            .container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Grupos de Predicación - Congregación Cordialidad</h1>
+    </div>
+    
+    <div class="container">
+        <!-- GRUPO 1 -->
+        <div class="group">
+            <div class="group-header">Grupo 1</div>
+            <div class="group-content">
+                <div class="section">
+                    <div class="member anciano"><span class="role-badge badge-a">A</span>Carlos Cortez</div>
+                    <div class="member anciano"><span class="role-badge badge-ap">AP</span>Juan Lozano</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member siervo"><span class="role-badge badge-sp">SP</span>Edwin Gutiérrez</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Cristian Serpa</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Mariano Jiménez</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Alba Sierra</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Esther Rua</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Jaqueline Tuñon</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Maria Ibarra</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Olga Lozano</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Raquel Escorcia</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member publicador">Alan Jiménez</div>
+                    <div class="member publicador">Ana Ortiz</div>
+                    <div class="member publicador">Aurora Vázquez</div>
+                    <div class="member publicador">Cristian Serpa Orozco</div>
+                    <div class="member publicador">Darlis Serpa</div>
+                    <div class="member publicador">Edinson Palomino</div>
+                    <div class="member publicador">Elizabeth Arena</div>
+                    <div class="member publicador">Erick Jiménez</div>
+                    <div class="member publicador">Ilsia Vázquez</div>
+                    <div class="member publicador">Janeth Mattos</div>
+                    <div class="member publicador">Karina Jiménez</div>
+                    <div class="member publicador">Lina Paez</div>
+                    <div class="member publicador">Matias Cortez</div>
+                    <div class="member publicador">Osiris Jiménez</div>
+                    <div class="member publicador">Patricia Nieto</div>
+                    <div class="member publicador">Samly Jiménez</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GRUPO 2 -->
+        <div class="group">
+            <div class="group-header">Grupo 2</div>
+            <div class="group-content">
+                <div class="section">
+                    <div class="member anciano"><span class="role-badge badge-ap">AP</span>Emiro Tapia</div>
+                    <div class="member anciano"><span class="role-badge badge-a">A</span>Luis Robles</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Ernesto Echeverry</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>José Guzmán</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Yovani Cervantes</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Adriana Valencia</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Evelyn Villar</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Jennys Isaza</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Luz Enith Parodi</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Rosalba Martinez</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member publicador">Adriana Alfaro</div>
+                    <div class="member publicador">Deyber Echeverry</div>
+                    <div class="member publicador">Emelda López</div>
+                    <div class="member publicador">Enedys Tapia</div>
+                    <div class="member publicador">Etilbia Theran</div>
+                    <div class="member publicador">Evelys Tafur</div>
+                    <div class="member publicador">Genys Pérez</div>
+                    <div class="member publicador">Isabella Alfaro</div>
+                    <div class="member publicador">Ivan Alfaro</div>
+                    <div class="member publicador">Kelly Julio</div>
+                    <div class="member publicador">Luz Viloria</div>
+                    <div class="member publicador">Martha Tafur</div>
+                    <div class="member publicador">Noemi Marino</div>
+                    <div class="member publicador">Norelia Flórez</div>
+                    <div class="member publicador">Ramiro Alfaro</div>
+                    <div class="member publicador">Saray Alfaro</div>
+                    <div class="member publicador">Sixta Parody</div>
+                    <div class="member publicador">Yosly Guzman</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GRUPO 3 -->
+        <div class="group">
+            <div class="group-header">Grupo 3</div>
+            <div class="group-content">
+                <div class="section">
+                    <div class="member anciano"><span class="role-badge badge-a">A</span>Boris Márquez</div>
+                    <div class="member anciano"><span class="role-badge badge-a">A</span>Jesús Trujillo</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Antonio Medina</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Daniel Márquez</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Will Herrera</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Ana Tapia</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Angélica Jinete</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Brenda Márquez</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Cenith Cabrera</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Claudia Noriega</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Ruby Rodríguez</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Yurleidys Navarro</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member publicador">Acela Mercado</div>
+                    <div class="member publicador">Blaider Guerrero</div>
+                    <div class="member publicador">Boris Márquez</div>
+                    <div class="member publicador">Carlos Rivera</div>
+                    <div class="member publicador">Cindy García</div>
+                    <div class="member publicador">Dina Rodelo</div>
+                    <div class="member publicador">Elena Salazar</div>
+                    <div class="member publicador">Jair Saltarín</div>
+                    <div class="member publicador">Juan Rivera</div>
+                    <div class="member publicador">Liceth Guerrero</div>
+                    <div class="member publicador">Linda Márquez</div>
+                    <div class="member publicador">María Herrera</div>
+                    <div class="member publicador">Mariana Saltarín</div>
+                    <div class="member publicador">Sara Trujillo</div>
+                    <div class="member publicador">Vanessa Villa</div>
+                    <div class="member publicador">Yeilis Guerrero</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GRUPO 4 -->
+        <div class="group">
+            <div class="group-header">Grupo 4</div>
+            <div class="group-content">
+                <div class="section">
+                    <div class="member anciano"><span class="role-badge badge-a">A</span>Juan Cardenas</div>
+                    <div class="member anciano"><span class="role-badge badge-a">A</span>Isaac Molina</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member siervo"><span class="role-badge badge-sp">SP</span>Isaac Algarin</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Leonardo Roa</div>
+                    <div class="member siervo"><span class="role-badge badge-s">S</span>Naren Herrera</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Carmen Deford</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Cindy Solano</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Regina Cantillo</div>
+                    <div class="member precursor"><span class="role-badge badge-p">P</span>Rosmery Molina</div>
+                </div>
+                <div class="section-divider"></div>
+                <div class="section">
+                    <div class="member publicador">Ana Cabrera</div>
+                    <div class="member publicador">Briceida Gonzales</div>
+                    <div class="member publicador">David Cervantes</div>
+                    <div class="member publicador">Gleiryn Herrera</div>
+                    <div class="member publicador">Karla Rodelo</div>
+                    <div class="member publicador">Katia Ávila</div>
+                    <div class="member publicador">Leidy de la Torre</div>
+                    <div class="member publicador">Ludys Mendoza</div>
+                    <div class="member publicador">Luz Escobar</div>
+                    <div class="member publicador">Margarita Ríos</div>
+                    <div class="member publicador">María Martinez</div>
+                    <div class="member publicador">María Serpa</div>
+                    <div class="member publicador">Matias Gomez Guerrero</div>
+                    <div class="member publicador">Natalia Tuñon</div>
+                    <div class="member publicador">Sandra Solano</div>
+                    <div class="member publicador">Sara Solano</div>
+                    <div class="member publicador">Sebastián Tuñon</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="summary">
+        <div class="summary-item">
+            <div class="summary-number">109</div>
+            <div class="summary-label">Total Publicadores</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">8</div>
+            <div class="summary-label">Ancianos</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">12</div>
+            <div class="summary-label">Siervos</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-number">26</div>
+            <div class="summary-label">Precursores</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Grupo 1</div>
+            <div class="summary-number" style="font-size: 14pt;">27</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Grupo 2</div>
+            <div class="summary-number" style="font-size: 14pt;">28</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Grupo 3</div>
+            <div class="summary-number" style="font-size: 14pt;">28</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Grupo 4</div>
+            <div class="summary-number" style="font-size: 14pt;">26</div>
+        </div>
+    </div>
+    
+    <div class="legend">
+        <span class="legend-item"><span class="role-badge badge-ap">AP</span> Anciano y Precursor</span>
+        <span class="legend-item"><span class="role-badge badge-a">A</span> Anciano</span>
+        <span class="legend-item"><span class="role-badge badge-sp">SP</span> Siervo y Precursor</span>
+        <span class="legend-item"><span class="role-badge badge-s">S</span> Siervo Ministerial</span>
+        <span class="legend-item"><span class="role-badge badge-p">P</span> Precursor</span>
+    </div>
+</body>
+</html>
