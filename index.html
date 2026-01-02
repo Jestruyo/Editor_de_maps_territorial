@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Mapas territorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .toolbar {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .toolbar-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar-section label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563EB;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-download {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .btn-download:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .download-section {
+            margin-left: auto;
+            border-left: 2px solid #dee2e6;
+            padding-left: 20px;
+        }
+
+        .btn-mode {
+            background: white;
+            border: 2px solid #dee2e6;
+            color: #495057;
+        }
+
+        .btn-mode.active {
+            background: #3B82F6;
+            color: white;
+            border-color: #3B82F6;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        #brushSize {
+            width: 100px;
+        }
+
+        #brushSizeValue {
+            min-width: 40px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        #colorPicker {
+            width: 50px;
+            height: 40px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .color-presets {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-right: 10px;
+        }
+
+        .color-preset-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .color-preset-btn {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .color-preset-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-preset-btn.active {
+            border-color: #333;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-preset-btn[data-color="territorio-predicar"] {
+            background-color: #28a745;
+        }
+
+        .color-preset-btn[data-color="territorio-incompleto"] {
+            background-color: #ff8800;
+        }
+
+        .color-preset-btn[data-color="territorio-bloqueado"] {
+            background-color: #dc3545;
+        }
+
+        .color-preset-label {
+            font-size: 0.7em;
+            color: #495057;
+            font-weight: 600;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+            background: #f8f9fa;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        #canvas {
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            cursor: crosshair;
+            max-width: 100%;
+            height: auto;
+        }
+
+        #canvas.hidden {
+            display: none;
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.5em;
+            padding: 60px 20px;
+        }
+
+        .placeholder.hidden {
+            display: none;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 25px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .instructions h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions li {
+            padding: 8px 0;
+            color: #6c757d;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .instructions li strong {
+            color: #495057;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-section.download-section {
+                margin-left: 0;
+                border-left: none;
+                border-top: 2px solid #dee2e6;
+                padding-left: 0;
+                padding-top: 20px;
+                margin-top: 10px;
+            }
+
+            .mode-buttons {
+                width: 100%;
+            }
+
+            .btn-mode {
+                flex: 1;
+            }
+
+            .btn-download {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .color-presets {
+                flex-wrap: wrap;
+                justify-content: center;
+                margin-right: 0;
+            }
+
+            .color-preset-label {
+                font-size: 0.65em;
+            }
+
+            #descriptionInput {
+                width: 100%;
+                min-width: auto;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Editor de Mapas territorial</h1>
+            <p class="subtitle">Carga una imagen del territorio y dibuja polígonos o formas libres sobre ella.</p>
+        </header>
+
+        <div class="toolbar">
+            <div class="toolbar-section">
+                <label for="imageInput" class="btn btn-primary">
+                    📁 Cargar Imagen
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                </label>
+            </div>
+
+            <div class="toolbar-section">
+                <label>Modo de dibujo:</label>
+                <div class="mode-buttons">
+                    <button id="modeFree" class="btn btn-mode active" data-mode="free">
+                        ✏️ Forma Libre
+                    </button>
+                    <button id="modePolygon" class="btn btn-mode" data-mode="polygon">
+                        🔷 Polígono
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar-section">
+                <label for="brushSize">Tamaño del pincel:</label>
+                <input type="range" id="brushSize" min="1" max="20" value="3">
+                <span id="brushSizeValue">3px</span>
+            </div>
+
+            <div class="toolbar-section">
+                <label>Color:</label>
+                <div class="color-presets">
+                    <div class="color-preset-wrapper">
+                        <button class="color-preset-btn" data-color="territorio-predicar" data-hex="#28a745" title="Territorio a predicar (Verde)"></button>
+                        <span class="color-preset-label">Verde</span>
+                    </div>
+                    <div class="color-preset-wrapper">
+                        <button class="color-preset-btn" data-color="territorio-incompleto" data-hex="#ff8800" title="Territorio incompleto (Naranja)"></button>
+                        <span class="color-preset-label">Naranja</span>
+                    </div>
+                    <div class="color-preset-wrapper">
+                        <button class="color-preset-btn" data-color="territorio-bloqueado" data-hex="#dc3545" title="Territorio bloqueado (Rojo)"></button>
+                        <span class="color-preset-label">Rojo</span>
+                    </div>
+                </div>
+                <input type="color" id="colorPicker" value="#ff0000" title="Selector de color libre">
+            </div>
+
+            <div class="toolbar-section">
+                <label for="descriptionInput">Descripción:</label>
+                <input type="text" id="descriptionInput" placeholder="Agregar comentarios o descripción..." style="padding: 8px 12px; border: 2px solid #dee2e6; border-radius: 6px; font-size: 1em; min-width: 250px;">
+            </div>
+
+            <div class="toolbar-section">
+                <button id="undoBtn" class="btn btn-secondary" disabled title="Deshacer (Ctrl+Z)">⏪ Deshacer</button>
+                <button id="redoBtn" class="btn btn-secondary" disabled title="Rehacer (Ctrl+Y)">⏩ Rehacer</button>
+            </div>
+
+            <div class="toolbar-section">
+                <button id="clearBtn" class="btn btn-secondary">🗑️ Limpiar Dibujos</button>
+                <button id="clearAllBtn" class="btn btn-danger">🔄 Reiniciar Todo</button>
+            </div>
+
+            <div class="toolbar-section download-section">
+                <button id="downloadPNGBtn" class="btn btn-download" disabled>
+                    📥 Descargar PNG
+                </button>
+                <button id="downloadPDFBtn" class="btn btn-download" disabled>
+                    📄 Descargar PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="canvas"></canvas>
+            <div id="placeholder" class="placeholder">
+                <p>📷 Carga una imagen para comenzar</p>
+            </div>
+        </div>
+
+        <div class="instructions">
+            <h3>Instrucciones:</h3>
+            <ul>
+                <li><strong>Forma Libre:</strong> Mantén presionado y arrastra para dibujar</li>
+                <li><strong>Polígono:</strong> Haz clic para agregar puntos, doble clic para cerrar y rellenar</li>
+                <li><strong>Múltiples polígonos:</strong> Puedes dibujar varios polígonos sin perder los anteriores</li>
+                <li><strong>Eliminar último punto:</strong> Presiona ESC mientras dibujas un polígono</li>
+                <li><strong>Descargar:</strong> Usa los botones de descarga para guardar tu trabajo en PNG o PDF</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Variables globales
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imageInput = document.getElementById('imageInput');
+        const modeFreeBtn = document.getElementById('modeFree');
+        const modePolygonBtn = document.getElementById('modePolygon');
+        const brushSizeSlider = document.getElementById('brushSize');
+        const brushSizeValue = document.getElementById('brushSizeValue');
+        const colorPicker = document.getElementById('colorPicker');
+        const clearBtn = document.getElementById('clearBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const placeholder = document.getElementById('placeholder');
+        const downloadPNGBtn = document.getElementById('downloadPNGBtn');
+        const downloadPDFBtn = document.getElementById('downloadPDFBtn');
+        const colorPresetButtons = document.querySelectorAll('.color-preset-btn');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+
+        let currentMode = 'free'; // 'free' o 'polygon'
+        let isDrawing = false;
+        let brushSize = 3;
+        let currentColor = '#ff0000';
+        let image = null;
+        let polygonPoints = [];
+        let completedPolygons = []; // Array para guardar todos los polígonos completados
+        
+        // Sistema de historial para undo/redo
+        let history = []; // Array de estados (snapshots del canvas)
+        let historyIndex = -1; // Índice del estado actual
+        const MAX_HISTORY = 50; // Máximo de estados en el historial
+
+        // Event listeners
+        imageInput.addEventListener('change', handleImageUpload);
+        modeFreeBtn.addEventListener('click', () => setMode('free'));
+        modePolygonBtn.addEventListener('click', () => setMode('polygon'));
+        brushSizeSlider.addEventListener('input', handleBrushSizeChange);
+        colorPicker.addEventListener('input', handleColorChange);
+        colorPresetButtons.forEach(btn => {
+            btn.addEventListener('click', handleColorPresetClick);
+        });
+        clearBtn.addEventListener('click', clearDrawings);
+        clearAllBtn.addEventListener('click', clearAll);
+        undoBtn.addEventListener('click', undo);
+        redoBtn.addEventListener('click', redo);
+        downloadPNGBtn.addEventListener('click', downloadPNG);
+        downloadPDFBtn.addEventListener('click', downloadPDF);
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        canvas.addEventListener('dblclick', handleDoubleClick);
+        
+        // Manejar atajos de teclado (undo/redo y ESC)
+        document.addEventListener('keydown', (e) => {
+            // Atajos para undo/redo
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                e.preventDefault();
+                undo();
+            } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+                e.preventDefault();
+                redo();
+            } else {
+                // Pasar otros eventos a handleKeyDown (como ESC)
+                handleKeyDown(e);
+            }
+        });
+
+        // Función para cargar imagen
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    image = img;
+                    // Ajustar el tamaño del canvas según la imagen
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Limpiar polígonos anteriores
+                    completedPolygons = [];
+                    polygonPoints = [];
+                    
+                    // Dibujar la imagen en el canvas
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Mostrar canvas y ocultar placeholder
+                    canvas.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    
+                    // Habilitar botones de descarga
+                    downloadPNGBtn.disabled = false;
+                    downloadPDFBtn.disabled = false;
+                    
+                    // Guardar estado inicial en el historial
+                    saveState();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Función para establecer el modo de dibujo
+        function setMode(mode) {
+            currentMode = mode;
+            polygonPoints = [];
+            
+            // Actualizar botones
+            if (mode === 'free') {
+                modeFreeBtn.classList.add('active');
+                modePolygonBtn.classList.remove('active');
+                canvas.style.cursor = 'crosshair';
+            } else {
+                modePolygonBtn.classList.add('active');
+                modeFreeBtn.classList.remove('active');
+                canvas.style.cursor = 'crosshair';
+            }
+        }
+
+        // Función para manejar cambios en el tamaño del pincel
+        function handleBrushSizeChange(e) {
+            brushSize = parseInt(e.target.value);
+            brushSizeValue.textContent = brushSize + 'px';
+        }
+
+        // Función para manejar cambios de color
+        function handleColorChange(e) {
+            currentColor = e.target.value;
+            // Remover clase active de todos los botones predefinidos
+            colorPresetButtons.forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Función para manejar clic en botones de color predefinido
+        function handleColorPresetClick(e) {
+            const hexColor = e.currentTarget.getAttribute('data-hex');
+            currentColor = hexColor;
+            colorPicker.value = hexColor;
+            
+            // Remover clase active de todos los botones
+            colorPresetButtons.forEach(btn => btn.classList.remove('active'));
+            // Agregar clase active al botón clickeado
+            e.currentTarget.classList.add('active');
+        }
+
+        // Función para iniciar el dibujo
+        function startDrawing(e) {
+            if (!image) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            
+            if (currentMode === 'free') {
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            } else if (currentMode === 'polygon') {
+                polygonPoints.push({ x, y });
+                drawPolygonPoint(x, y);
+            }
+        }
+
+        // Función para dibujar
+        function draw(e) {
+            if (!image || !isDrawing || currentMode !== 'free') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+            const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+            
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = currentColor;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Función para detener el dibujo
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                ctx.beginPath();
+                // Guardar estado después de terminar de dibujar
+                saveState();
+            }
+        }
+
+        // Función para dibujar un punto del polígono
+        function drawPolygonPoint(x, y) {
+            ctx.fillStyle = currentColor;
+            ctx.beginPath();
+            ctx.arc(x, y, brushSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Si hay más de un punto, dibujar la línea
+            if (polygonPoints.length > 1) {
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = brushSize;
+                ctx.beginPath();
+                ctx.moveTo(polygonPoints[polygonPoints.length - 2].x, polygonPoints[polygonPoints.length - 2].y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+        }
+
+        // Función para convertir color hexadecimal a RGBA
+        function hexToRgba(hex, alpha = 0.5) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        // Función para rellenar polígono (por defecto después de cerrarlo)
+        function fillPolygon(points, fillColor, strokeColor, lineWidth) {
+            if (points.length < 3) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            
+            ctx.closePath();
+            
+            // Rellenar el polígono con transparencia
+            ctx.fillStyle = hexToRgba(fillColor, 0.5);
+            ctx.fill();
+            
+            // Dibujar el borde
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+        }
+
+        // Función para guardar un polígono completado
+        function saveCompletedPolygon(points, fillColor, strokeColor, lineWidth) {
+            // Crear una copia del array de puntos
+            const pointsCopy = points.map(p => ({ x: p.x, y: p.y }));
+            completedPolygons.push({
+                points: pointsCopy,
+                fillColor: fillColor,
+                strokeColor: strokeColor,
+                lineWidth: lineWidth
+            });
+        }
+
+        // Función para redibujar todos los polígonos guardados
+        function redrawAllPolygons() {
+            completedPolygons.forEach(polygon => {
+                fillPolygon(polygon.points, polygon.fillColor, polygon.strokeColor, polygon.lineWidth);
+            });
+        }
+
+        // Función para manejar doble clic (cerrar polígono)
+        function handleDoubleClick(e) {
+            if (currentMode !== 'polygon' || polygonPoints.length < 3) return;
+            
+            // Guardar el polígono completado antes de redibujar
+            saveCompletedPolygon(polygonPoints, currentColor, currentColor, brushSize);
+            
+            // Redibujar la imagen base y todos los polígonos
+            redrawBaseImage();
+            redrawAllPolygons();
+            
+            // Limpiar puntos del polígono actual
+            polygonPoints = [];
+            
+            // Guardar estado después de completar el polígono
+            saveState();
+        }
+
+        // Función para manejar tecla ESC (eliminar último punto)
+        function handleKeyDown(e) {
+            if (e.key === 'Escape' && currentMode === 'polygon' && polygonPoints.length > 0) {
+                polygonPoints.pop();
+                redrawBaseImage();
+                redrawAllPolygons();
+                redrawAllShapes();
+            }
+        }
+
+        // Función para limpiar solo los dibujos (mantener imagen)
+        function clearDrawings() {
+            if (!image) return;
+            completedPolygons = [];
+            polygonPoints = [];
+            redrawBaseImage();
+            // Guardar estado después de limpiar
+            saveState();
+        }
+
+        // Función para limpiar todo (imagen y dibujos)
+        function clearAll() {
+            if (!image) return;
+            
+            if (confirm('¿Estás seguro de que quieres reiniciar todo? Esto eliminará la imagen y todos los dibujos.')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                image = null;
+                polygonPoints = [];
+                completedPolygons = [];
+                imageInput.value = '';
+                canvas.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                downloadPNGBtn.disabled = true;
+                downloadPDFBtn.disabled = true;
+                // Limpiar historial
+                history = [];
+                historyIndex = -1;
+                updateUndoRedoButtons();
+            }
+        }
+
+        // Función para guardar el estado actual en el historial
+        function saveState() {
+            if (!image) return;
+            
+            // Eliminar estados futuros si estamos en medio del historial
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+            
+            // Guardar el estado actual (imagen del canvas y polígonos)
+            const state = {
+                imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
+                completedPolygons: JSON.parse(JSON.stringify(completedPolygons))
+            };
+            
+            history.push(state);
+            historyIndex = history.length - 1;
+            
+            // Limitar el tamaño del historial
+            if (history.length > MAX_HISTORY) {
+                history.shift();
+                historyIndex--;
+            }
+            
+            // Actualizar botones
+            updateUndoRedoButtons();
+        }
+        
+        // Función para deshacer
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreState();
+            }
+        }
+        
+        // Función para rehacer
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreState();
+            }
+        }
+        
+        // Función para restaurar un estado del historial
+        function restoreState() {
+            if (!image || historyIndex < 0 || historyIndex >= history.length) return;
+            
+            const state = history[historyIndex];
+            
+            // Restaurar la imagen del canvas
+            ctx.putImageData(state.imageData, 0, 0);
+            
+            // Restaurar los polígonos completados
+            completedPolygons = JSON.parse(JSON.stringify(state.completedPolygons));
+            
+            // Actualizar botones
+            updateUndoRedoButtons();
+        }
+        
+        // Función para actualizar el estado de los botones undo/redo
+        function updateUndoRedoButtons() {
+            undoBtn.disabled = historyIndex <= 0;
+            redoBtn.disabled = historyIndex >= history.length - 1;
+        }
+        
+        // Función para redibujar la imagen base
+        function redrawBaseImage() {
+            if (image) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(image, 0, 0);
+            }
+        }
+
+        // Función para redibujar todas las formas (para futuras mejoras)
+        function redrawAllShapes() {
+            // Redibujar el polígono en progreso
+            if (polygonPoints.length > 0) {
+                polygonPoints.forEach((point, index) => {
+                    if (index > 0) {
+                        ctx.strokeStyle = currentColor;
+                        ctx.lineWidth = brushSize;
+                        ctx.beginPath();
+                        ctx.moveTo(polygonPoints[index - 1].x, polygonPoints[index - 1].y);
+                        ctx.lineTo(point.x, point.y);
+                        ctx.stroke();
+                    }
+                    drawPolygonPoint(point.x, point.y);
+                });
+            }
+        }
+
+        // Función auxiliar para dibujar la leyenda de colores
+        function drawLegendOnCanvas(ctx, canvasWidth, canvasHeight, descriptionBottomY) {
+            const padding = 20;
+            const fontSize = 14;
+            const circleSize = 12;
+            const spacing = 15;
+            const spacingFromDescription = 15; // Espacio entre descripción y leyenda
+            
+            ctx.save();
+            ctx.font = `${fontSize}px Arial, sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            
+            // Definir los elementos de la leyenda
+            const legendItems = [
+                { color: '#28a745', label: 'Territorio por predicar' },
+                { color: '#ff8800', label: 'Territorio incompleto o pendiente' },
+                { color: '#dc3545', label: 'Territorio suspendido o bloqueado' }
+            ];
+            
+            // Calcular el ancho total de la leyenda
+            let totalWidth = 0;
+            legendItems.forEach((item, index) => {
+                const textWidth = ctx.measureText(item.label).width;
+                totalWidth += circleSize + spacing + textWidth;
+                if (index < legendItems.length - 1) {
+                    totalWidth += 30; // Espacio entre items
+                }
+            });
+            
+            // Posición: arriba de la descripción (si existe) o en la parte inferior
+            const legendHeight = fontSize + 10;
+            const legendY = descriptionBottomY 
+                ? descriptionBottomY - spacingFromDescription - legendHeight / 2
+                : canvasHeight - padding - 15;
+            
+            // Posición inicial (centrado horizontalmente)
+            const startX = (canvasWidth - totalWidth) / 2;
+            
+            // Dibujar fondo semi-transparente para la leyenda
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(startX - padding, legendY - legendHeight / 2 - 5, totalWidth + padding * 2, legendHeight + 10);
+            
+            // Dibujar cada elemento de la leyenda
+            let currentX = startX;
+            legendItems.forEach((item) => {
+                // Dibujar círculo de color
+                ctx.fillStyle = item.color;
+                ctx.beginPath();
+                ctx.arc(currentX + circleSize / 2, legendY, circleSize / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Dibujar texto
+                ctx.fillStyle = '#333';
+                ctx.fillText(item.label, currentX + circleSize + spacing, legendY);
+                
+                // Calcular posición del siguiente elemento
+                const textWidth = ctx.measureText(item.label).width;
+                currentX += circleSize + spacing + textWidth + 30;
+            });
+            
+            ctx.restore();
+        }
+
+        // Función auxiliar para dibujar descripción en un contexto de canvas (parte más baja)
+        function drawDescriptionOnCanvas(ctx, canvasWidth, canvasHeight, text) {
+            if (!text || text.trim() === '') return null;
+            
+            const padding = 20;
+            const fontSize = 16;
+            const lineHeight = fontSize * 1.4;
+            const maxWidth = canvasWidth - (padding * 2);
+            
+            ctx.save();
+            ctx.font = `${fontSize}px Arial, sans-serif`;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            
+            // Dividir el texto en líneas si es muy largo
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = words[0] || '';
+            
+            for (let i = 1; i < words.length; i++) {
+                const testLine = currentLine + ' ' + words[i];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && currentLine.length > 0) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            
+            // Calcular la posición: parte más baja del canvas
+            const textHeight = lines.length * lineHeight;
+            const descriptionTopY = canvasHeight - textHeight - padding - 10;
+            const bgY = descriptionTopY - 10;
+            
+            // Dibujar fondo semi-transparente para el texto
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(padding, bgY, canvasWidth - (padding * 2), textHeight + 20);
+            
+            // Dibujar el texto línea por línea
+            ctx.fillStyle = '#333';
+            lines.forEach((line, index) => {
+                const y = descriptionTopY + index * lineHeight;
+                ctx.fillText(line, padding + 10, y);
+            });
+            
+            ctx.restore();
+            
+            // Devolver la posición Y superior de la descripción para posicionar la leyenda arriba
+            return descriptionTopY - 10;
+        }
+
+        // Función para descargar como PNG
+        function downloadPNG() {
+            if (!image) return;
+            
+            // Crear un canvas temporal para incluir la descripción
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Copiar el contenido del canvas original
+            tempCtx.drawImage(canvas, 0, 0);
+            
+            // Primero dibujar la descripción (parte más baja) si existe
+            const description = descriptionInput.value.trim();
+            const descriptionTopY = description 
+                ? drawDescriptionOnCanvas(tempCtx, tempCanvas.width, tempCanvas.height, description)
+                : null;
+            
+            // Luego dibujar la leyenda de colores (siempre visible, arriba de la descripción)
+            drawLegendOnCanvas(tempCtx, tempCanvas.width, tempCanvas.height, descriptionTopY);
+            
+            // Crear un enlace de descarga
+            const link = document.createElement('a');
+            link.download = 'mapa-dibujado.png';
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Función para descargar como PDF
+        function downloadPDF() {
+            if (!image) return;
+            
+            try {
+                // Crear un canvas temporal para incluir la descripción
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Copiar el contenido del canvas original
+                tempCtx.drawImage(canvas, 0, 0);
+                
+                // Primero dibujar la descripción (parte más baja) si existe
+                const description = descriptionInput.value.trim();
+                const descriptionTopY = description 
+                    ? drawDescriptionOnCanvas(tempCtx, tempCanvas.width, tempCanvas.height, description)
+                    : null;
+                
+                // Luego dibujar la leyenda de colores (siempre visible, arriba de la descripción)
+                drawLegendOnCanvas(tempCtx, tempCanvas.width, tempCanvas.height, descriptionTopY);
+                
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: tempCanvas.width > tempCanvas.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [tempCanvas.width, tempCanvas.height]
+                });
+                
+                // Convertir canvas temporal a imagen
+                const imgData = tempCanvas.toDataURL('image/png');
+                
+                // Agregar la imagen al PDF (ajustar al tamaño del canvas)
+                pdf.addImage(imgData, 'PNG', 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // Descargar el PDF
+                pdf.save('mapa-dibujado.pdf');
+            } catch (error) {
+                console.error('Error al generar PDF:', error);
+                alert('Error al generar el PDF. Por favor, intenta con PNG o asegúrate de tener conexión a internet para cargar la librería jsPDF.');
+            }
+        }
+    </script>
+</body>
+</html>
+
